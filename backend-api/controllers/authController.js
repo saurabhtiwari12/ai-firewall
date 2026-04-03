@@ -47,6 +47,10 @@ async function register(req, res) {
 async function login(req, res) {
   try {
     const { email, password } = req.body;
+    // Ensure primitives – validation middleware has already enforced format
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ success: false, message: 'Invalid request payload' });
+    }
 
     const user = await User.findOne({ email }).select('+password');
     if (!user || !user.active) {

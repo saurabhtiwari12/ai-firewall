@@ -5,7 +5,20 @@ const alertService = require('../services/alertService');
 const auditService = require('../services/auditService');
 const logger = require('../utils/logger');
 
-// ── Ingest new security event ─────────────────────────────────────────────────
+// Allowed values for filterable enum fields – guards against NoSQL operator injection
+const ALLOWED_RISK_LEVELS = new Set(['safe', 'suspicious', 'high', 'critical']);
+const ALLOWED_ATTACK_TYPES = new Set([
+  'port_scan', 'brute_force', 'sql_injection', 'xss', 'ddos',
+  'malware', 'ransomware', 'data_exfiltration', 'man_in_the_middle',
+  'zero_day', 'normal', 'unknown',
+]);
+
+/** Cast a query value to a plain string; return null if it is not a primitive string. */
+function safeString(val) {
+  return typeof val === 'string' ? val : null;
+}
+
+
 async function createEvent(req, res) {
   try {
     const event = await SecurityEvent.create(req.body);
@@ -39,9 +52,16 @@ async function getEvents(req, res) {
     const skip = (page - 1) * limit;
 
     const filter = {};
-    if (req.query.risk_level) filter.risk_level = req.query.risk_level;
-    if (req.query.attack_type) filter.attack_type = req.query.attack_type;
-    if (req.query.src_ip) filter.src_ip = req.query.src_ip;
+    const riskLevel = safeString(req.query.risk_level);
+    if (riskLevel && ALLOWED_RISK_LEVELS.has(riskLevel)) filter.risk_level = riskLevel;
+
+    const attackType = safeString(req.query.attack_type);
+    if (attackType && ALLOWED_ATTACK_TYPES.has(attackType)) filter.attack_type = attackType;
+
+    const srcIp = safeString(req.query.src_ip);
+    // Validate IPv4/IPv6 format to prevent injection; allow only well-formed addresses
+    if (srcIp && /^[\d.a-fA-F:]+$/.test(srcIp)) filter.src_ip = srcIp;
+
     if (req.query.resolved !== undefined) filter.resolved = req.query.resolved === 'true';
 
     // Date range

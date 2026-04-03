@@ -10,6 +10,14 @@ const { body } = require('express-validator');
 const { handleValidationErrors } = require('../middleware/validation');
 const logger = require('../utils/logger');
 
+const ALLOWED_ALERT_STATUSES = new Set(['open', 'acknowledged', 'resolved', 'false_positive']);
+const ALLOWED_ALERT_SEVERITIES = new Set(['low', 'medium', 'high', 'critical']);
+
+/** Return the value only if it is a plain string; otherwise null. */
+function safeString(val) {
+  return typeof val === 'string' ? val : null;
+}
+
 const router = express.Router();
 
 router.use(authenticate);
@@ -20,8 +28,10 @@ router.get('/', async (req, res) => {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 20));
     const filter = {};
-    if (req.query.status) filter.status = req.query.status;
-    if (req.query.severity) filter.severity = req.query.severity;
+    const status = safeString(req.query.status);
+    if (status && ALLOWED_ALERT_STATUSES.has(status)) filter.status = status;
+    const severity = safeString(req.query.severity);
+    if (severity && ALLOWED_ALERT_SEVERITIES.has(severity)) filter.severity = severity;
 
     const [alerts, total] = await Promise.all([
       Alert.find(filter).sort({ created_at: -1 }).skip((page - 1) * limit).limit(limit).lean(),
@@ -84,17 +94,18 @@ router.put(
   async (req, res) => {
     try {
       const update = {};
-      if (req.body.status) {
-        update.status = req.body.status;
-        if (req.body.status === 'acknowledged') {
+      const newStatus = safeString(req.body.status);
+      if (newStatus && ALLOWED_ALERT_STATUSES.has(newStatus)) {
+        update.status = newStatus;
+        if (newStatus === 'acknowledged') {
           update.acknowledged_by = req.user._id;
           update.acknowledged_at = new Date();
-        } else if (req.body.status === 'resolved') {
+        } else if (newStatus === 'resolved') {
           update.resolved_by = req.user._id;
           update.resolved_at = new Date();
         }
       }
-      if (req.body.notes) update.notes = req.body.notes;
+      if (typeof req.body.notes === 'string') update.notes = req.body.notes;
 
       const alert = await Alert.findByIdAndUpdate(req.params.id, update, {
         new: true,
