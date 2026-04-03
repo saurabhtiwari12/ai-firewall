@@ -223,7 +223,7 @@ class LoggingSettings:
     """Logging configuration."""
 
     level: str = field(default_factory=lambda: _env("LOG_LEVEL", "INFO"))
-    format: str = field(
+    log_format: str = field(
         default_factory=lambda: _env(
             "LOG_FORMAT",
             "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
@@ -292,7 +292,7 @@ class Settings:
 
         logging.basicConfig(
             level=getattr(logging, self.logging.level.upper(), logging.INFO),
-            format=self.logging.format,
+            format=self.logging.log_format,
             handlers=handlers,
             force=True,
         )
