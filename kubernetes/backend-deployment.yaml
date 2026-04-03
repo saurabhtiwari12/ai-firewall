@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-api
+  namespace: ai-firewall
+  labels:
+    app: backend-api
+    version: "1.0.0"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: backend-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: backend-api
+    spec:
+      serviceAccountName: backend-api-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+        - name: backend-api
+          image: your-registry/backend-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3001
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-firewall-config
+                  key: node-env
+            - name: PORT
+              value: "3001"
+            - name: MONGO_URI
+              valueFrom:
+                secretKeyRef:
+                  name: ai-firewall-secrets
+                  key: mongo-uri
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ai-firewall-secrets
+                  key: jwt-secret
+            - name: JWT_REFRESH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: ai-firewall-secrets
+                  key: jwt-refresh-secret
+            - name: REDIS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: ai-firewall-config
+                  key: redis-url
+            - name: ABUSEIPDB_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: ai-firewall-secrets
+                  key: abuseipdb-api-key
+                  optional: true
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: backend-api-sa
+  namespace: ai-firewall

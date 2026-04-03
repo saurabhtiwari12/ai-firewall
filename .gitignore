@@ -1,9 +1,66 @@
-firewall-engine/__pycache__/
-firewall-engine/config/__pycache__/
-firewall-engine/logs/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
 
 # Node.js
 backend-api/node_modules/
 backend-api/.env
 backend-api/coverage/
 backend-api/logs/
+node_modules/
+.npm
+*.tgz
+npm-debug.log*
+
+# React
+frontend-dashboard/build/
+
+# ML Models
+*.pkl
+*.joblib
+!ml_training/models/.gitkeep
+
+# Environment
+.env
+!.env.example
+
+# Docker
+*.tar
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfvars
+!*.tfvars.example
+
+# Logs
+*.log
+logs/
+
+# Cache
+threat_intelligence/cache/*.json
+threat_intelligence/feeds/*.txt

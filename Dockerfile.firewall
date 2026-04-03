@@ -1,0 +1,36 @@
+# syntax=docker/dockerfile:1
+FROM python:3.11-slim
+
+LABEL org.opencontainers.image.title="AI Firewall Engine" \
+      org.opencontainers.image.description="ML-powered firewall threat detection engine" \
+      org.opencontainers.image.source="https://github.com/your-org/ai-firewall" \
+      org.opencontainers.image.vendor="Your Organization"
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd -r firewall && useradd -r -g firewall firewall
+
+COPY firewall-engine/requirements.txt ./requirements.txt
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY firewall-engine/ ./
+
+RUN chown -R firewall:firewall /app
+USER firewall
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" || exit 1
+
+CMD ["python", "main.py"]
