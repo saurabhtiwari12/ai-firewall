@@ -87,7 +87,7 @@ class ModelSettings:
         default_factory=lambda: _env("MODEL_IF_PATH", "isolation_forest.joblib")
     )
     xgboost_path: str = field(
-        default_factory=lambda: _env("MODEL_XGB_PATH", "xgboost_model.joblib")
+        default_factory=lambda: _env("MODEL_XGB_PATH", "xgboost_clf.joblib")
     )
     scaler_path: str = field(
         default_factory=lambda: _env("MODEL_SCALER_PATH", "scaler.joblib")
