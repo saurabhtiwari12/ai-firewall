@@ -60,6 +60,9 @@ Desktop.ini
 # Logs
 *.log
 logs/
+firewall-engine/logs/*
+!firewall-engine/logs/
+!firewall-engine/logs/.gitkeep
 
 # Cache
 threat_intelligence/cache/*.json
