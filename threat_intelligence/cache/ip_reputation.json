@@ -1,0 +1,50 @@
+{
+  "8.8.8.8": {
+    "ip": "8.8.8.8",
+    "score": 0.0225,
+    "is_malicious": false,
+    "sources": {
+      "abuseipdb": 0.05,
+      "spamhaus": 0.0,
+      "emerging_threats": 0.0
+    },
+    "cached": false,
+    "timestamp": 1775237907.115108
+  },
+  "192.0.2.1": {
+    "ip": "192.0.2.1",
+    "score": 0.405,
+    "is_malicious": false,
+    "sources": {
+      "abuseipdb": 0.9,
+      "spamhaus": 0.0,
+      "emerging_threats": 0.0
+    },
+    "cached": false,
+    "timestamp": 1775237907.1160204
+  },
+  "1.1.1.1": {
+    "ip": "1.1.1.1",
+    "score": 0.0765,
+    "is_malicious": false,
+    "sources": {
+      "abuseipdb": 0.17,
+      "spamhaus": 0.0,
+      "emerging_threats": 0.0
+    },
+    "cached": false,
+    "timestamp": 1775237907.1169019
+  },
+  "8.8.4.4": {
+    "ip": "8.8.4.4",
+    "score": 0.072,
+    "is_malicious": false,
+    "sources": {
+      "abuseipdb": 0.16,
+      "spamhaus": 0.0,
+      "emerging_threats": 0.0
+    },
+    "cached": false,
+    "timestamp": 1775237907.117655
+  }
+}
