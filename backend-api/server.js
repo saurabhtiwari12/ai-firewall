@@ -21,6 +21,7 @@ const eventRoutes = require('./routes/events');
 const analyticsRoutes = require('./routes/analytics');
 const alertRoutes = require('./routes/alerts');
 const systemRoutes = require('./routes/system');
+const dashboardRoutes = require('./routes/dashboard');
 
 // ── Prometheus: collect default metrics ──────────────────────────────────────
 if (process.env.METRICS_ENABLED === 'true') {
@@ -99,6 +100,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/alerts', alertRoutes);
 app.use('/api/system', systemRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // ── 404 handler ───────────────────────────────────────────────────────────────
 app.use((req, res) => {
