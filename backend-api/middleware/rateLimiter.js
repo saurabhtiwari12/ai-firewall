@@ -3,7 +3,7 @@
 const rateLimit = require('express-rate-limit');
 
 const WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 15 * 60 * 1000;
-const API_MAX = parseInt(process.env.RATE_LIMIT_MAX, 10) || 100;
+const API_MAX = parseInt(process.env.RATE_LIMIT_MAX, 10) || 10000;
 const AUTH_MAX = parseInt(process.env.AUTH_RATE_LIMIT_MAX, 10) || 10;
 
 function buildLimiter(max, message) {
@@ -22,7 +22,7 @@ function buildLimiter(max, message) {
   });
 }
 
-/** General API rate limiter – 100 req / 15 min */
+/** General API rate limiter – 10,000 req / 15 min */
 const apiLimiter = buildLimiter(
   API_MAX,
   'Too many requests. Please slow down.'
