@@ -216,17 +216,30 @@ class FeatureEngineer:
     # Public API
     # ------------------------------------------------------------------
 
+    @staticmethod
+    def _is_scaler_fitted(scaler: object) -> bool:
+        """Return True if *scaler* is fitted, regardless of scaler type.
+
+        Supports both the custom ``FeatureScaler`` (which exposes a ``fitted``
+        bool attribute) and sklearn-compatible scalers such as
+        ``StandardScaler`` (which set ``n_features_in_`` after ``fit()``).
+        """
+        if hasattr(scaler, "fitted"):
+            return bool(scaler.fitted)  # type: ignore[union-attr]
+        # sklearn scalers set n_features_in_ once fit() has been called
+        return hasattr(scaler, "n_features_in_")
+
     def process(self, flow: FlowRecord) -> np.ndarray:
         """Return a 1-D feature vector for a single flow."""
         vec = extract_features(flow)
-        if self.scaler and self.scaler.fitted:
+        if self.scaler and self._is_scaler_fitted(self.scaler):
             vec = self.scaler.transform(vec.reshape(1, -1)).flatten()
         return vec
 
     def process_batch(self, flows: Sequence[FlowRecord]) -> np.ndarray:
         """Return an (N, FEATURE_DIM) matrix for a list of flows."""
         X = extract_features_batch(flows)
-        if self.scaler and self.scaler.fitted and len(X) > 0:
+        if self.scaler and self._is_scaler_fitted(self.scaler) and len(X) > 0:
             X = self.scaler.transform(X)
         return X
 
